@@ -8,10 +8,13 @@ import (
 )
 
 type User struct {
-	ID             int       `db:"id"`
-	Created        time.Time `db:"created"`
-	Email          string    `db:"email"`
-	HashedPassword string    `db:"hashed_password"`
+	ID             string    `db:"ID"`
+	FullName       string    `db:"FullName"`
+	Email          string    `db:"Email"`
+	HashedPassword string    `db:"HashedPassword"`
+	ProfilePicture string    `db:"ProfilePicture"`
+	CreatedAt      time.Time `db:"CreatedAt"`
+	UpdatedAt      time.Time `db:"UpdatedAt"`
 }
 
 func (db *DB) InsertUser(email, hashedPassword string) (int, error) {
@@ -19,7 +22,7 @@ func (db *DB) InsertUser(email, hashedPassword string) (int, error) {
 	defer cancel()
 
 	query := `
-		INSERT INTO users (created, email, hashed_password)
+		INSERT INTO Users (Created, Email, HashedPassword)
 		VALUES (?, ?, ?)`
 
 	result, err := db.ExecContext(ctx, query, time.Now(), email, hashedPassword)
@@ -41,7 +44,7 @@ func (db *DB) GetUser(id int) (*User, bool, error) {
 
 	var user User
 
-	query := `SELECT * FROM users WHERE id = ?`
+	query := `SELECT * FROM Users WHERE ID = ?`
 
 	err := db.GetContext(ctx, &user, query, id)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -57,7 +60,7 @@ func (db *DB) GetUserByEmail(email string) (*User, bool, error) {
 
 	var user User
 
-	query := `SELECT * FROM users WHERE email = ?`
+	query := `SELECT * FROM Users WHERE Email = ?`
 
 	err := db.GetContext(ctx, &user, query, email)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -71,7 +74,7 @@ func (db *DB) UpdateUserHashedPassword(id int, hashedPassword string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
-	query := `UPDATE users SET hashed_password = ? WHERE id = ?`
+	query := `UPDATE Users SET HashedPassword = ? WHERE ID = ?`
 
 	_, err := db.ExecContext(ctx, query, hashedPassword, id)
 	return err

@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/MirzaHilmi/JariyahMu/internal/password"
@@ -111,7 +110,7 @@ func (app *application) createAuthenticationToken(w http.ResponseWriter, r *http
 	}
 
 	var claims jwt.Claims
-	claims.Subject = strconv.Itoa(user.ID)
+	claims.Subject = user.ID
 
 	expiry := time.Now().Add(24 * time.Hour)
 	claims.Issued = jwt.NewNumericTime(time.Now())
