@@ -24,45 +24,47 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Email     string              `json:"Email"`
-		Password  string              `json:"Password"`
-		Validator validator.Validator `json:"-"`
+	var payload struct {
+		FullName             string              `json:"fullName"`
+		Email                string              `json:"email"`
+		Password             string              `json:"password"`
+		PasswordConfirmation string              `json:"passwordConfirmation"`
+		Validator            validator.Validator `json:"-"`
 	}
 
-	err := request.DecodeJSON(w, r, &input)
+	err := request.DecodeJSON(w, r, &payload)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
 
-	_, found, err := app.db.GetUserByEmail(input.Email)
+	_, found, err := app.db.GetUserByEmail(payload.Email)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	input.Validator.CheckField(input.Email != "", "Email", "Email is required")
-	input.Validator.CheckField(validator.Matches(input.Email, validator.RgxEmail), "Email", "Must be a valid email address")
-	input.Validator.CheckField(!found, "Email", "Email is already in use")
+	payload.Validator.CheckField(payload.Email != "", "Email", "Email is required")
+	payload.Validator.CheckField(validator.Matches(payload.Email, validator.RgxEmail), "Email", "Must be a valid email address")
+	payload.Validator.CheckField(!found, "Email", "Email is already in use")
 
-	input.Validator.CheckField(input.Password != "", "Password", "Password is required")
-	input.Validator.CheckField(len(input.Password) >= 8, "Password", "Password is too short")
-	input.Validator.CheckField(len(input.Password) <= 72, "Password", "Password is too long")
-	input.Validator.CheckField(validator.NotIn(input.Password, password.CommonPasswords...), "Password", "Password is too common")
+	payload.Validator.CheckField(payload.Password != "", "Password", "Password is required")
+	payload.Validator.CheckField(len(payload.Password) >= 8, "Password", "Password is too short")
+	payload.Validator.CheckField(len(payload.Password) <= 72, "Password", "Password is too long")
+	payload.Validator.CheckField(validator.NotIn(payload.Password, password.CommonPasswords...), "Password", "Password is too common")
 
-	if input.Validator.HasErrors() {
-		app.failedValidation(w, r, input.Validator)
+	if payload.Validator.HasErrors() {
+		app.failedValidation(w, r, payload.Validator)
 		return
 	}
 
-	hashedPassword, err := password.Hash(input.Password)
+	hashedPassword, err := password.Hash(payload.Password)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	_, err = app.db.InsertUser(input.Email, hashedPassword)
+	_, err = app.db.InsertUser(payload.Email, hashedPassword)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -72,40 +74,40 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createAuthenticationToken(w http.ResponseWriter, r *http.Request) {
-	var input struct {
+	var payload struct {
 		Email     string              `json:"Email"`
 		Password  string              `json:"Password"`
 		Validator validator.Validator `json:"-"`
 	}
 
-	err := request.DecodeJSON(w, r, &input)
+	err := request.DecodeJSON(w, r, &payload)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
 	}
 
-	user, found, err := app.db.GetUserByEmail(input.Email)
+	user, found, err := app.db.GetUserByEmail(payload.Email)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	input.Validator.CheckField(input.Email != "", "Email", "Email is required")
-	input.Validator.CheckField(found, "Email", "Email address could not be found")
+	payload.Validator.CheckField(payload.Email != "", "Email", "Email is required")
+	payload.Validator.CheckField(found, "Email", "Email address could not be found")
 
 	if found {
-		passwordMatches, err := password.Matches(input.Password, user.HashedPassword)
+		passwordMatches, err := password.Matches(payload.Password, user.HashedPassword)
 		if err != nil {
 			app.serverError(w, r, err)
 			return
 		}
 
-		input.Validator.CheckField(input.Password != "", "Password", "Password is required")
-		input.Validator.CheckField(passwordMatches, "Password", "Password is incorrect")
+		payload.Validator.CheckField(payload.Password != "", "Password", "Password is required")
+		payload.Validator.CheckField(passwordMatches, "Password", "Password is incorrect")
 	}
 
-	if input.Validator.HasErrors() {
-		app.failedValidation(w, r, input.Validator)
+	if payload.Validator.HasErrors() {
+		app.failedValidation(w, r, payload.Validator)
 		return
 	}
 
