@@ -113,7 +113,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 403
                 message: Action forbidden, already authenticated
   /auth/login:
     post:
@@ -187,7 +186,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 401
                 message: Invalid credential
         "403":
           description: User already authenticated
@@ -196,7 +194,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 403
                 message: Action forbidden, already authenticated
   /user/profile:
     get:
@@ -240,7 +237,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 401
                 message: Unauthorized
         "404":
           description: Cannot find corresponding User Resource
@@ -249,7 +245,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 404
                 message: User not found
     patch:
       tags:
@@ -290,7 +285,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/APIResponse"
               example:
-                code: 200
                 message: Resource Patched
         "401":
           description: Request Unauthorized. Perhaps JWT Expired or Fraud
@@ -299,7 +293,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 401
                 message: Unauthorized
   /feed:
     get:
@@ -345,7 +338,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/APIResponse"
               example:
-                code: 204
                 message: No More Resource
         "401":
           description: Request Unauthorized. Perhaps JWT Expired or Fraud
@@ -354,20 +346,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/GeneralError"
               example:
-                code: 401
                 message: Unauthorized
 components:
   schemas:
     GeneralError:
       type: object
-      required:
-        - code
       properties:
-        code:
-          type: integer
-          description: HTTP Response Status Code for the Error
-          format: int32
-          example: [401]
         message:
           type: string
           description: |-
@@ -390,13 +374,6 @@ components:
     APIResponse:
       type: object
       properties:
-        code:
-          type: integer
-          description: |-
-            HTTP Response Status Code for the Response. 
-            Ideally this schema will always be used for a Successful Request
-          format: int32
-          example: 200
         message:
           type: string
           description: |-
