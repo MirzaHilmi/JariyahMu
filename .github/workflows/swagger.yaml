@@ -29,12 +29,14 @@ jobs:
       - name: 📂 Copy Generated Swagger UI
         shell: bash
         run: |-
-          echo "Copying SwaggerUI static source code to Runner"
+          echo 'Copying SwaggerUI static source code to Runner'
           docker cp swagger_doc:/usr/share/nginx/html ${{ github.workspace }}/public
-          echo "Copying spec file to /public"
+          echo 'Copying spec file to /public'
           cp ${{ github.workspace }}/openapi.yaml ${{ github.workspace }}/public
-          echo "Replacing SwaggerUI URL to use local spec file instead"
+          echo 'Replacing SwaggerUI URL to use local spec file instead'
           sed -i 's/https:\/\/petstore.swagger.io\/v2\/swagger.json/.\/openapi.yaml/g' ${{ github.workspace }}/public/swagger-initializer.js
+          echo 'Changing Index Title'
+          sed -i 's/Swagger UI/JariyahMu API Specification/g' ${{ github.workspace }}/public/index.html
       - name: 🍀 Start Deployment
         uses: bobheadxi/deployments@v1
         id: deployment
