@@ -16,21 +16,25 @@ func (app *application) routes() http.Handler {
 	mux.Use(app.recoverPanic)
 	mux.Use(app.authenticate)
 
-	mux.Get("/status", app.status)
-	mux.Post("/users", app.createUser)
-	mux.Post("/authentication-tokens", app.createAuthenticationToken)
+	v1 := chi.NewRouter()
 
-	mux.Group(func(mux chi.Router) {
-		mux.Use(app.requireAuthenticatedUser)
+	v1.Get("/status", app.status)
+	v1.Post("/users", app.createUser)
+	v1.Post("/authentication-tokens", app.createAuthenticationToken)
 
-		mux.Get("/protected", app.protected)
+	v1.Group(func(v1 chi.Router) {
+		v1.Use(app.requireAuthenticatedUser)
+
+		v1.Get("/protected", app.protected)
 	})
 
-	mux.Group(func(mux chi.Router) {
-		mux.Use(app.requireBasicAuthentication)
+	v1.Group(func(v1 chi.Router) {
+		v1.Use(app.requireBasicAuthentication)
 
-		mux.Get("/basic-auth-protected", app.protected)
+		v1.Get("/basic-auth-protected", app.protected)
 	})
+
+	mux.Mount("/api/v1", v1)
 
 	return mux
 }
