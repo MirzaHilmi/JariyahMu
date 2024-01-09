@@ -1,15 +1,12 @@
-package main
+package bootstrap
 
 import (
-	"flag"
-	"fmt"
 	"log/slog"
 	"sync"
 
 	"github.com/MirzaHilmi/JariyahMu/internal/database"
 	"github.com/MirzaHilmi/JariyahMu/internal/env"
 	"github.com/MirzaHilmi/JariyahMu/internal/smtp"
-	"github.com/MirzaHilmi/JariyahMu/internal/version"
 )
 
 type config struct {
@@ -35,7 +32,7 @@ type config struct {
 	}
 }
 
-type application struct {
+type Application struct {
 	config config
 	db     *database.DB
 	logger *slog.Logger
@@ -43,7 +40,7 @@ type application struct {
 	wg     sync.WaitGroup
 }
 
-func bootstrap(logger *slog.Logger) (*application, error) {
+func Bootstrap(logger *slog.Logger) (*Application, error) {
 	var cfg config
 
 	err := env.LoadEnv("JariyahMu")
@@ -64,15 +61,6 @@ func bootstrap(logger *slog.Logger) (*application, error) {
 	cfg.smtp.password = env.GetString("SMTP_PASSWORD", "")
 	cfg.smtp.from = env.GetString("SMTP_FROM", "")
 
-	showVersion := flag.Bool("version", false, "display version and exit")
-
-	flag.Parse()
-
-	if *showVersion {
-		fmt.Printf("version: %s\n", version.Get())
-		return nil, nil
-	}
-
 	db, err := database.New(cfg.db.dsn, cfg.db.automigrate)
 	if err != nil {
 		return nil, err
@@ -84,7 +72,7 @@ func bootstrap(logger *slog.Logger) (*application, error) {
 		return nil, err
 	}
 
-	app := &application{
+	app := &Application{
 		config: cfg,
 		db:     db,
 		logger: logger,

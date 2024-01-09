@@ -1,4 +1,4 @@
-package main
+package bootstrap
 
 import (
 	"context"
@@ -19,10 +19,10 @@ const (
 	defaultShutdownPeriod = 30 * time.Second
 )
 
-func (app *application) serveHTTP() error {
+func (app *Application) ServeHTTP() error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.httpPort),
-		Handler:      app.routes(),
+		Handler:      app.Routes(),
 		ErrorLog:     slog.NewLogLogger(app.logger.Handler(), slog.LevelWarn),
 		IdleTimeout:  defaultIdleTimeout,
 		ReadTimeout:  defaultReadTimeout,

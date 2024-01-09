@@ -1,4 +1,4 @@
-package main
+package bootstrap
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ import (
 	"github.com/pascaldekloe/jwt"
 )
 
-func (app *application) status(w http.ResponseWriter, r *http.Request) {
+func (app *Application) status(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"status": "OK",
 	}
@@ -23,7 +23,7 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) signUserUp(w http.ResponseWriter, r *http.Request) {
+func (app *Application) signUserUp(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		FullName             string              `json:"fullName"`
 		Email                string              `json:"email"`
@@ -73,7 +73,7 @@ func (app *application) signUserUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (app *application) logUserIn(w http.ResponseWriter, r *http.Request) {
+func (app *Application) logUserIn(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Email     string              `json:"Email"`
 		Password  string              `json:"Password"`
@@ -139,6 +139,6 @@ func (app *application) logUserIn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) protected(w http.ResponseWriter, r *http.Request) {
+func (app *Application) protected(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("This is a protected handler"))
 }

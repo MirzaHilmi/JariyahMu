@@ -1,11 +1,11 @@
-package main
+package bootstrap
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func (app *application) newEmailData() map[string]any {
+func (app *Application) newEmailData() map[string]any {
 	data := map[string]any{
 		"BaseURL": app.config.baseURL,
 	}
@@ -13,7 +13,7 @@ func (app *application) newEmailData() map[string]any {
 	return data
 }
 
-func (app *application) backgroundTask(r *http.Request, fn func() error) {
+func (app *Application) backgroundTask(r *http.Request, fn func() error) {
 	app.wg.Add(1)
 
 	go func() {

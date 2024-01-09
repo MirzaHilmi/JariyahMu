@@ -1,4 +1,4 @@
-package main
+package bootstrap
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (app *application) routes() http.Handler {
+func (app *Application) Routes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.NotFound(app.notFound)

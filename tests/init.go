@@ -1,4 +1,4 @@
-package main
+package tests
 
 import (
 	"log/slog"
@@ -9,17 +9,14 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-func main() {
+var app *bootstrap.Application
+
+func init() {
 	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{Level: slog.LevelDebug}))
 
-	app, err := bootstrap.Bootstrap(logger)
-	if err != nil {
-		trace := string(debug.Stack())
-		logger.Error(err.Error(), "trace", trace)
-		os.Exit(1)
-	}
+	var err error
 
-	err = app.ServeHTTP()
+	app, err = bootstrap.Bootstrap(logger)
 	if err != nil {
 		trace := string(debug.Stack())
 		logger.Error(err.Error(), "trace", trace)
