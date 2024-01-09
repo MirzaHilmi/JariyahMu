@@ -19,8 +19,11 @@ func (app *application) routes() http.Handler {
 	v1 := chi.NewRouter()
 
 	v1.Get("/status", app.status)
-	v1.Post("/users", app.createUser)
-	v1.Post("/authentication-tokens", app.createAuthenticationToken)
+
+	v1.Route("/auth", func(r chi.Router) {
+		r.Post("/signup", app.signUserUp)
+		r.Post("/login", app.logUserIn)
+	})
 
 	v1.Group(func(v1 chi.Router) {
 		v1.Use(app.requireAuthenticatedUser)

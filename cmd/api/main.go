@@ -12,7 +12,6 @@ import (
 	"github.com/MirzaHilmi/JariyahMu/internal/env"
 	"github.com/MirzaHilmi/JariyahMu/internal/smtp"
 	"github.com/MirzaHilmi/JariyahMu/internal/version"
-	"github.com/joho/godotenv"
 
 	"github.com/lmittmann/tint"
 )
@@ -20,7 +19,14 @@ import (
 func main() {
 	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{Level: slog.LevelDebug}))
 
-	err := run(logger)
+	app, err := bootstrap(logger)
+	if err != nil {
+		trace := string(debug.Stack())
+		logger.Error(err.Error(), "trace", trace)
+		os.Exit(1)
+	}
+
+	err = app.serveHTTP()
 	if err != nil {
 		trace := string(debug.Stack())
 		logger.Error(err.Error(), "trace", trace)
@@ -59,12 +65,12 @@ type application struct {
 	wg     sync.WaitGroup
 }
 
-func run(logger *slog.Logger) error {
+func bootstrap(logger *slog.Logger) (*application, error) {
 	var cfg config
 
-	err := godotenv.Load()
+	err := env.LoadEnv("JariyahMu")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	cfg.baseURL = env.GetString("BASE_URL", "http://localhost:8080")
@@ -86,18 +92,18 @@ func run(logger *slog.Logger) error {
 
 	if *showVersion {
 		fmt.Printf("version: %s\n", version.Get())
-		return nil
+		return nil, nil
 	}
 
 	db, err := database.New(cfg.db.dsn, cfg.db.automigrate)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer db.Close()
 
 	mailer, err := smtp.NewMailer(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.from)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	app := &application{
@@ -107,5 +113,5 @@ func run(logger *slog.Logger) error {
 		mailer: mailer,
 	}
 
-	return app.serveHTTP()
+	return app, nil
 }

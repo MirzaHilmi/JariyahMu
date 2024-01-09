@@ -2,8 +2,21 @@ package env
 
 import (
 	"os"
+	"regexp"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
+
+func LoadEnv(projectDirName string) error {
+	re := regexp.MustCompile(`^(.*` + projectDirName + `)`)
+	cwd, _ := os.Getwd()
+	rootPath := re.Find([]byte(cwd))
+
+	err := godotenv.Load(string(rootPath) + `/.env`)
+
+	return err
+}
 
 func GetString(key, defaultValue string) string {
 	value, exists := os.LookupEnv(key)

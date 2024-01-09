@@ -14,7 +14,7 @@ import (
 
 func (app *application) status(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
-		"Status": "OK",
+		"status": "OK",
 	}
 
 	err := response.JSON(w, http.StatusOK, data)
@@ -23,7 +23,7 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
+func (app *application) signUserUp(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		FullName             string              `json:"fullName"`
 		Email                string              `json:"email"`
@@ -73,7 +73,7 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (app *application) createAuthenticationToken(w http.ResponseWriter, r *http.Request) {
+func (app *application) logUserIn(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Email     string              `json:"Email"`
 		Password  string              `json:"Password"`
